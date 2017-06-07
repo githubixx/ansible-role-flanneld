@@ -1,0 +1,32 @@
+[Unit]
+Description=Network fabric for containers
+After=network.target
+After=network-online.target
+Wants=network-online.target
+Before=docker.service
+
+[Service]
+Type=notify
+Restart=always
+RestartSec=5
+EnvironmentFile={{flannel_options_dir}}/options.env
+LimitNOFILE=40000
+LimitNPROC=1048576
+ExecStartPre=/bin/mkdir -p /run/flannel
+ExecStartPre=/bin/mkdir -p {{flannel_log_dir}}
+ExecStart={{flannel_bin_dir}}/flanneld \
+  --etcd-cafile=${FLANNELD_ETCD_CAFILE} \
+  --etcd-certfile=${FLANNELD_ETCD_CERTFILE} \
+  --etcd-keyfile=${FLANNELD_ETCD_KEYFILE} \
+  --etcd-prefix=${FLANNELD_ETCD_PREFIX} \
+  --etcd-endpoints=${FLANNELD_ETCD_ENDPOINTS} \
+  --iface=${FLANNELD_IFACE} \
+  --public-ip=${FLANNELD_PUBLIC_IP} \
+  --log_dir={{flannel_log_dir}} \
+  --subnet-file=${FLANNELD_SUBNET_FILE} \
+  --alsologtostderr=true \
+  --ip-masq={{flannel_ip_masq}}
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=docker.service
