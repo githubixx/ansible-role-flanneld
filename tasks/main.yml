@@ -3,7 +3,7 @@
   command: "{{etcd_bin_dir}}/etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem get {{flannel_etcd_prefix}}/config"
   register: flannel_configured
   run_once: true
-  delegate_to: "{{groups.k8s_controller|first}}"
+  delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
     - k8s-flannel
 
@@ -11,7 +11,7 @@
   command: "etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem set {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\"}\'" 
   when: flannel_configured.stderr.find('Key not found') == 1
   run_once: true
-  delegate_to: "{{groups.k8s_controller|first}}"
+  delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
     - k8s-flannel
 
