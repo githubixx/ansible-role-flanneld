@@ -1,6 +1,4 @@
 ---
-local_cert_dir: "/etc/cfssl"
-
 k8s_interface: "tap0"
 k8s_conf_dir: "/var/lib/kubernetes"
 k8s_cni_conf_dir: "/etc/cni/net.d"
