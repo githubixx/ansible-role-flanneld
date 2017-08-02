@@ -3,6 +3,7 @@
   command: "{{etcd_bin_dir}}/etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem get {{flannel_etcd_prefix}}/config"
   register: flannel_configured
   run_once: true
+  ignore_errors: true
   delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
     - k8s-flannel
