@@ -24,7 +24,9 @@ ExecStart={{flannel_bin_dir}}/flanneld \
   --public-ip=${FLANNELD_PUBLIC_IP} \
   --log_dir={{flannel_log_dir}} \
   --subnet-file=${FLANNELD_SUBNET_FILE} \
-  --ip-masq={{flannel_ip_masq}}
+  --ip-masq={{flannel_ip_masq}} \
+  --healthz-ip={{flannel_healthz_ip}} \
+  --healthz-port={{flannel_healthz_port}}
 
 [Install]
 WantedBy=multi-user.target

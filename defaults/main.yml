@@ -23,3 +23,6 @@ flannel_log_dir: "/var/log/flannel"
 flannel_bin_dir: "/usr/local/sbin"
 flannel_ip_masq: "true"
 flannel_cni_conf_file: "10-flannel"
+flannel_healthz_ip: "0.0.0.0"
+flannel_healthz_port: "0" # 0 = disable
+
