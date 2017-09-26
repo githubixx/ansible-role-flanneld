@@ -24,7 +24,6 @@ ExecStart={{flannel_bin_dir}}/flanneld \
   --public-ip=${FLANNELD_PUBLIC_IP} \
   --log_dir={{flannel_log_dir}} \
   --subnet-file=${FLANNELD_SUBNET_FILE} \
-  --alsologtostderr=true \
   --ip-masq={{flannel_ip_masq}}
 
 [Install]
