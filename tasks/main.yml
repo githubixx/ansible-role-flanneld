@@ -15,6 +15,16 @@
   tags:
     - k8s-flannel
 
+- name: Create Kubernetes config directory
+  file:
+    path: "{{k8s_conf_dir}}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  tags:
+    - k8s-flannel
+
 - name: Copy etcd certificates
   copy:
     src: "{{k8s_ca_conf_directory}}/{{item}}"
