@@ -1,16 +1,15 @@
 ---
 - name: Check if flannel network configuration in etcd is done
-  command: "{{etcd_bin_dir}}/etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem get {{flannel_etcd_prefix}}/config"
+  shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl get {{flannel_etcd_prefix}}/config"
   register: flannel_configured
   run_once: true
-  ignore_errors: true
   delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
     - k8s-flannel
 
 - name: Setup flannel network configuration in etcd if needed
-  command: "etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem set {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}\'"
-  when: flannel_configured.stderr.find('Key not found') != -1
+  shell: "ETCDCTL_API=3 {{etcd_bin_dir}}/etcdctl put {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}\'"
+  when: flannel_configured.stdout == ""
   run_once: true
   delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
