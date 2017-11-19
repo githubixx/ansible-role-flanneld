@@ -13,7 +13,7 @@ etcd_certificates:
   - cert-etcd.pem
   - cert-etcd-key.pem
 
-flannel_version: "v0.9.0"
+flannel_version: "v0.9.1"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
