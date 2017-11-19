@@ -2,6 +2,7 @@
 k8s_interface: "tap0"
 k8s_conf_dir: "/var/lib/kubernetes"
 k8s_cni_conf_dir: "/etc/cni/net.d"
+k8s_ca_conf_directory: "/etc/k8s/certs"
 
 etcd_conf_dir: "/etc/etcd"
 etcd_bin_dir: "/usr/local/bin"
@@ -15,10 +16,13 @@ etcd_certificates:
 flannel_version: "v0.9.0"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
+flannel_backend_type: "vxlan"
 flannel_cni_name: "podnet"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
-flannel_log_dir: "/var/log/flannel"
 flannel_bin_dir: "/usr/local/sbin"
 flannel_ip_masq: "true"
 flannel_cni_conf_file: "10-flannel"
+flannel_healthz_ip: "0.0.0.0"
+flannel_healthz_port: "0" # 0 = disable
+

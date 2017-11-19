@@ -1,30 +1,39 @@
 ---
-- name: Check if flannel network configuration in etcd is done
-  command: "{{etcd_bin_dir}}/etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem get {{flannel_etcd_prefix}}/config"
-  register: flannel_configured
-  run_once: true
-  ignore_errors: true
-  delegate_to: "{{groups.k8s_etcd|first}}"
-  tags:
-    - k8s-flannel
-
-- name: Setup flannel network configuration in etcd if needed
-  command: "etcdctl --ca-file={{etcd_conf_dir}}/ca-etcd.pem set {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\"}\'" 
-  when: flannel_configured.stderr.find('Key not found') != -1
-  run_once: true
-  delegate_to: "{{groups.k8s_etcd|first}}"
+- name: Create Kubernetes config directory
+  file:
+    path: "{{k8s_conf_dir}}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
   tags:
     - k8s-flannel
 
 - name: Copy etcd certificates
   copy:
-    src: "{{local_cert_dir}}/{{item}}"
+    src: "{{k8s_ca_conf_directory}}/{{item}}"
     dest: "{{k8s_conf_dir}}/{{item}}"
     mode: 0640
     owner: root
     group: root
   with_items:
     - "{{etcd_certificates}}"
+  tags:
+    - k8s-flannel
+
+- name: Check if flannel network configuration in etcd is done
+  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem get {{flannel_etcd_prefix}}/config || true"
+  register: flannel_configured
+  run_once: true
+  delegate_to: "{{groups.k8s_etcd|first}}"
+  tags:
+    - k8s-flannel
+
+- name: Setup flannel network configuration in etcd if needed
+  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem set {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}\'"
+  when: flannel_configured.stderr.find('Key not found') != -1
+  run_once: true
+  delegate_to: "{{groups.k8s_etcd|first}}"
   tags:
     - k8s-flannel
 
