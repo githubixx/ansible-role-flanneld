@@ -30,7 +30,7 @@
     - k8s-flannel
 
 - name: Setup flannel network configuration in etcd if needed
-  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem set {{flannel_etcd_prefix}}/config \'{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}\'"
+  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem set {{flannel_etcd_prefix}}/config '{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}'"
   when: flannel_configured.stderr.find('Key not found') != -1
   run_once: true
   delegate_to: "{{groups.k8s_etcd|first}}"
@@ -108,4 +108,3 @@
     state: started
   tags:
     - k8s-flannel
-
