@@ -12,28 +12,33 @@ Role Variables
 --------------
 
 ```
+# The interface on which the K8s services should listen on. As all cluster
+# communication should use the PeerVPN interface the interface name is
+# normally "tap0" or "peervpn0".
 k8s_interface: "tap0"
+# The directory to store the K8s certificates and other configuration
 k8s_conf_dir: "/var/lib/kubernetes"
+# CNI network plugin settings
 k8s_cni_conf_dir: "/etc/cni/net.d"
+# The directory from where to copy the K8s certificates. By default this
+# will expand to user's LOCAL $HOME (the user that run's "ansible-playbook ..."
+# plus "/k8s/certs". That means if the user's $HOME directory is e.g.
+# "/home/da_user" then "k8s_ca_conf_directory" will have a value of
+# "/home/da_user/k8s/certs".
+k8s_ca_conf_directory: "{{ '~/k8s/certs' | expanduser }}"
 
-etcd_conf_dir: "/etc/etcd"
-etcd_bin_dir: "/usr/local/bin"
-etcd_client_port: 2379
-etcd_certificates:
-  - ca-etcd.pem
-  - ca-etcd-key.pem
-  - cert-etcd.pem
-  - cert-etcd-key.pem
-
-flannel_version: "v0.7.1"
+flannel_version: "v0.9.1"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
+flannel_backend_type: "vxlan"
 flannel_cni_name: "podnet"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
 flannel_ip_masq: "true"
 flannel_cni_conf_file: "10-flannel"
+flannel_healthz_ip: "0.0.0.0"
+flannel_healthz_port: "0" # 0 = disable
 ```
 
 Dependencies
