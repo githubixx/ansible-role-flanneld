@@ -45,6 +45,12 @@
   tags:
     - k8s-flannel
 
+- name: Combine flannel_settings and flannel_settings_user (if defined)
+  set_fact:
+    flannel_settings: "{{flannel_settings | combine(flannel_settings_user|default({})) }}"
+  tags:
+    - k8s-flannel
+
 - name: Install systemd service for flanneld
   template:
     src: etc/systemd/system/flanneld.service.j2
@@ -54,28 +60,7 @@
     mode: 0644
   notify:
     - reload systemd
-  tags:
-    - k8s-flannel
-
-- name: Create flanneld configuration directory
-  file:
-    path: "{{flannel_options_dir}}"
-    state: directory
-    mode: 0700
-    owner: root
-    group: root
-  tags:
-    - k8s-flannel
-
-- name: Install options file for flanneld
-  template:
-    src: etc/flannel/options.env.j2
-    dest: "{{flannel_options_dir}}/options.env"
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - reload systemd
+    - restart flanneld
   tags:
     - k8s-flannel
 
@@ -98,8 +83,6 @@
     mode: 0644
   tags:
     - k8s-flannel
-
-- meta: flush_handlers
 
 - name: Enable and start flanneld
   service:

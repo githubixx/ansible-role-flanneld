@@ -23,7 +23,7 @@ etcd_certificates:
   - cert-etcd.pem
   - cert-etcd-key.pem
 
-flannel_version: "v0.9.1"
+flannel_version: "v0.10.0"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
@@ -31,7 +31,20 @@ flannel_cni_name: "podnet"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
-flannel_ip_masq: "true"
 flannel_cni_conf_file: "10-flannel"
-flannel_healthz_ip: "0.0.0.0"
-flannel_healthz_port: "0" # 0 = disable
+
+flannel_systemd_restartsec: "5"
+flannel_systemd_limitnofile: "40000"
+flannel_systemd_limitnproc: "1048576"
+
+flannel_settings:
+  "etcd-cafile": "{{k8s_conf_dir}}/ca-etcd.pem"
+  "etcd-certfile": "{{k8s_conf_dir}}/cert-etcd.pem"
+  "etcd-keyfile": "{{k8s_conf_dir}}/cert-etcd-key.pem"
+  "etcd-prefix": "{{flannel_etcd_prefix}}"
+  "iface": "{{k8s_interface}}"
+  "public-ip": "{{hostvars[inventory_hostname]['ansible_' + k8s_interface].ipv4.address}}"
+  "subnet-file": "{{flannel_subnet_file_dir}}/subnet.env"
+  "ip-masq": "true"
+  "healthz-ip": "0.0.0.0"
+  "healthz-port": "0" # 0 = disable

@@ -2,3 +2,5 @@
 - name: reload systemd
   command: systemctl daemon-reload
 
+- name: restart flanneld
+  command: systemctl restart flanneld
