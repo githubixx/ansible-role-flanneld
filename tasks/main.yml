@@ -25,7 +25,13 @@
     - k8s-flannel
 
 - name: Check if flannel network configuration in etcd is done
-  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem get {{flannel_etcd_prefix}}/config || true"
+  shell: |
+    {{etcd_bin_dir}}/etcdctl \
+      --ca-file={{k8s_conf_dir}}/ca-etcd.pem \
+      --cert-file={{k8s_conf_dir}}/cert-etcd.pem \
+      --key-file={{k8s_conf_dir}}/cert-etcd-key.pem \
+      --endpoints="https://127.0.0.1:{{etcd_client_port}}" \
+      get {{flannel_etcd_prefix}}/config || true
   register: flannel_configured
   run_once: true
   delegate_to: "{{groups.k8s_etcd|first}}"
@@ -33,7 +39,13 @@
     - k8s-flannel
 
 - name: Setup flannel network configuration in etcd if needed
-  shell: "{{etcd_bin_dir}}/etcdctl --ca-file={{k8s_conf_dir}}/ca-etcd.pem --cert-file={{k8s_conf_dir}}/cert-etcd.pem --key-file={{k8s_conf_dir}}/cert-etcd-key.pem set {{flannel_etcd_prefix}}/config '{\"Network\":\"{{flannel_ip_range}}\",\"Backend\":{\"Type\": \"{{flannel_backend_type}}\"}}'"
+  shell: |
+    {{etcd_bin_dir}}/etcdctl \
+      --ca-file={{k8s_conf_dir}}/ca-etcd.pem \
+      --cert-file={{k8s_conf_dir}}/cert-etcd.pem \
+      --key-file={{k8s_conf_dir}}/cert-etcd-key.pem \
+      --endpoints="https://127.0.0.1:{{etcd_client_port}}" \
+      set {{flannel_etcd_prefix}}/config '{"Network":"{{flannel_ip_range}}","Backend":{"Type": "{{flannel_backend_type}}"}}'
   when: flannel_configured.stderr.find('Key not found') != -1
   run_once: true
   delegate_to: "{{groups.k8s_etcd|first}}"
