@@ -1,4 +1,7 @@
 ---
+- name: Gather instance facts
+  setup:
+
 - name: Create Kubernetes config directory
   file:
     path: "{{k8s_conf_dir}}"
