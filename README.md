@@ -31,8 +31,8 @@ Role Variables
 
 ```
 # The interface on which the K8s services should listen on. As all cluster
-# communication should use the PeerVPN interface the interface name is
-# normally "tap0" or "peervpn0".
+# communication should use the VPN interface the interface name is
+# normally "wg0", "tap0" or "peervpn0".
 k8s_interface: "tap0"
 # The directory to store the K8s certificates and other configuration
 k8s_conf_dir: "/var/lib/kubernetes"
