@@ -1,7 +1,7 @@
 ansible-role-flanneld
 =====================
 
-This Ansible playbook is used in [Kubernetes the not so hard way with Ansible (at Scaleway) - Part 7 - Worker](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-7/). It installes flanneld which provides functionality for the Kubernetes pod network (makes it possible for pods on different hosts to communicate).
+This Ansible playbook is used in [Kubernetes the not so hard way with Ansible - Worker](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-worker/). It installes flanneld which provides functionality for the Kubernetes pod network (makes it possible for pods on different hosts to communicate).
 
 Versions
 --------
@@ -11,10 +11,17 @@ I tag every release and try to stay with [semantic versioning](http://semver.org
 Requirements
 ------------
 
-This role must be rolled out before Docker is installed. Additionally etcd must be running (but without that you won't have any part of Kubernetes running anyways ;-) ). During run the playbook will connect to the first node it finds in the `k8s_etcd` group and executes `etcdclt` there to add a new entry into etcd. That entry contains the flannel network config and it is located at "`flannel_etcd_prefix`/config".
+This role must be rolled out before Docker is installed (see https://github.com/githubixx/ansible-role-docker). Additionally etcd (see https://github.com/githubixx/ansible-role-etcd) must be running (but without that you won't have any part of Kubernetes running anyways ;-) ). During run the playbook will connect to the first node it finds in the `k8s_etcd` group and executes `etcdclt` there to add a new entry into etcd. That entry contains the flannel network config and it is located at "`flannel_etcd_prefix`/config".
 
 Changelog
 ---------
+
+**v5.0.0_r0.10.0**
+
+- working on Ubuntu 18.04
+- PeerVPN is no requirement, could be any VPN solution that supports fully meshed VPN's like WireGuard
+- fix etcdctl endpoints
+- gather facts before run other tasks
 
 **v4.0.0_r0.10.0**
 
@@ -81,7 +88,7 @@ flannel_settings:
   "healthz-port": "0" # 0 = disable
 ```
 
-The settings for Flannel daemon defined in `flannel_settings` can be overriden by defining a variable called `flannel_settings_user`. You can also add additional settings by using this variable. E.g. to override `healthz-ip` default value and add `kubeconfig-file` setting add the following settings to `group_vars/all.yml` or `group_vars/k8s.yml` or where ever it fit's best for you:
+The settings for Flannel daemon defined in `flannel_settings` can be overriden by defining a variable called `flannel_settings_user`. You can also add additional settings by using this variable. E.g. to override `healthz-ip` default value and add `kubeconfig-file` setting add the following settings to `group_vars/all.yml` or where ever it fit's best for you:
 
 ```
 flannel_settings_user:
