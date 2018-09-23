@@ -28,6 +28,7 @@ flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
 flannel_cni_name: "podnet"
+flannel_cni_interface: "cni0"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
@@ -58,3 +59,23 @@ flannel_settings:
   "ip-masq": "true"
   "healthz-ip": "0.0.0.0"
   "healthz-port": "0" # 0 = disable
+
+flannel_cni_conf: |
+  {
+    "name": "{{flannel_cni_interface}}",
+    "plugins": [
+      {
+        "type": "flannel",
+        "delegate": {
+          "hairpinMode": true,
+          "isDefaultGateway": true
+        }
+      },
+      {
+        "type": "portmap",
+        "capabilities": {
+          "portMappings": true
+        }
+      }
+    ]
+  }

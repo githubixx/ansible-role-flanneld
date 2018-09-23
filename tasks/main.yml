@@ -99,6 +99,14 @@
   tags:
     - k8s-flannel
 
+- name: Install flanneld CNI config
+  copy:
+    content: "{{flannel_cni_conf}}"
+    dest: "{{k8s_cni_conf_dir}}/10-flannel.conflist"
+    mode: 0600
+  tags:
+    - k8s-flannel
+
 - name: Enable and start flanneld
   service:
     name: flanneld
