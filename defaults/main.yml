@@ -36,6 +36,16 @@ flannel_cni_conf_file: "10-flannel"
 flannel_systemd_restartsec: "5"
 flannel_systemd_limitnofile: "40000"
 flannel_systemd_limitnproc: "1048576"
+# "ExecStartPre" directive in flannel's systemd service file. This command
+# is executed before flannel service starts.
+flannel_systemd_execstartpre: "/bin/mkdir -p {{flannel_subnet_file_dir}}"
+# "ExecStartPost" directive in flannel's systemd service file. This command
+# is execute after flannel service is started. If you run in Hetzner cloud
+# this may be important. In this case it changes the TX checksumming offload
+# parameter for the "flannel.1" interface. It seems that there is a 
+# (kernel/driver) checksum offload bug with flannel vxlan encapsulation 
+# (all inside UDP) inside WireGuard encapsulation.
+# flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"
 
 flannel_settings:
   "etcd-cafile": "{{k8s_conf_dir}}/ca-etcd.pem"
