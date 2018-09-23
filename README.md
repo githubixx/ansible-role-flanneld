@@ -41,9 +41,10 @@ Role Variables
 # communication should use the VPN interface the interface name is
 # normally "wg0", "tap0" or "peervpn0".
 k8s_interface: "tap0"
-# The directory to store the K8s certificates and other configuration
+# Directory where the K8s certificates and other configuration are stored
+# on the Kubernetes hosts.
 k8s_conf_dir: "/var/lib/kubernetes"
-# CNI network plugin settings
+# CNI network plugin directory
 k8s_cni_conf_dir: "/etc/cni/net.d"
 # The directory from where to copy the K8s certificates. By default this
 # will expand to user's LOCAL $HOME (the user that run's "ansible-playbook ..."
