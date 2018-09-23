@@ -53,7 +53,6 @@ k8s_cni_conf_dir: "/etc/cni/net.d"
 # "/home/da_user/k8s/certs".
 k8s_ca_conf_directory: "{{ '~/k8s/certs' | expanduser }}"
 
-etcd_conf_dir: "/etc/etcd"
 etcd_bin_dir: "/usr/local/bin"
 etcd_client_port: 2379
 etcd_certificates:
