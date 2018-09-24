@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v6.0.1_r0.10.0**
+
+- fix order of commands in flanneld.service.j2 template
+
 **v6.0.0_r0.10.0**
 
 - variable `flannel_cni_name` no longer needed
