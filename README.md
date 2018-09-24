@@ -16,22 +16,7 @@ This role must be rolled out before Docker is installed (see https://github.com/
 Changelog
 ---------
 
-**v5.0.0_r0.10.0**
-
-- working on Ubuntu 18.04
-- PeerVPN is no requirement, could be any VPN solution that supports fully meshed VPN's like WireGuard
-- fix etcdctl endpoints
-- gather facts before run other tasks
-
-**v4.0.0_r0.10.0**
-
-- upgrade to Flannel v0.10.0
-- major refactoring
-- introduce flexible parameter settings for flannel daemon via `flannel_settings` and `flannel_settings_user`
-
-**>= v3.0.0_r0.9.1**
-
-- no change log available
+see [CHANGELOG.md](CHANGELOG.md)
 
 Role Variables
 --------------
@@ -41,9 +26,10 @@ Role Variables
 # communication should use the VPN interface the interface name is
 # normally "wg0", "tap0" or "peervpn0".
 k8s_interface: "tap0"
-# The directory to store the K8s certificates and other configuration
+# Directory where the K8s certificates and other configuration are stored
+# on the Kubernetes hosts.
 k8s_conf_dir: "/var/lib/kubernetes"
-# CNI network plugin settings
+# CNI network plugin directory
 k8s_cni_conf_dir: "/etc/cni/net.d"
 # The directory from where to copy the K8s certificates. By default this
 # will expand to user's LOCAL $HOME (the user that run's "ansible-playbook ..."
@@ -52,7 +38,6 @@ k8s_cni_conf_dir: "/etc/cni/net.d"
 # "/home/da_user/k8s/certs".
 k8s_ca_conf_directory: "{{ '~/k8s/certs' | expanduser }}"
 
-etcd_conf_dir: "/etc/etcd"
 etcd_bin_dir: "/usr/local/bin"
 etcd_client_port: 2379
 etcd_certificates:
@@ -65,7 +50,6 @@ flannel_version: "v0.10.0"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
-flannel_cni_name: "podnet"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
@@ -74,6 +58,16 @@ flannel_cni_conf_file: "10-flannel"
 flannel_systemd_restartsec: "5"
 flannel_systemd_limitnofile: "40000"
 flannel_systemd_limitnproc: "1048576"
+# "ExecStartPre" directive in flannel's systemd service file. This command
+# is executed before flannel service starts.
+flannel_systemd_execstartpre: "/bin/mkdir -p {{flannel_subnet_file_dir}}"
+# "ExecStartPost" directive in flannel's systemd service file. This command
+# is execute after flannel service is started. If you run in Hetzner cloud
+# this may be important. In this case it changes the TX checksumming offload
+# parameter for the "flannel.1" interface. It seems that there is a
+# (kernel/driver) checksum offload bug with flannel vxlan encapsulation
+# (all inside UDP) inside WireGuard encapsulation.
+# flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"
 
 flannel_settings:
   "etcd-cafile": "{{k8s_conf_dir}}/ca-etcd.pem"
@@ -95,6 +89,45 @@ flannel_settings_user:
   "healthz-ip": "1.2.3.4"
   "kubeconfig-file": "/etc/k8s/k8s.cfg"
 ```
+
+A word about `flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"` which is commented out by default. If Pod-to-Pod communication works for you (across hosts) but Pod-to-Service or Node-to-Service doesn't work (also across hosts) then setting this variable and the content might help. At least it helped running Flannel traffic via WireGuard VPN at Hetzner cloud. It seems that TX offloading is not working in this case and this causes checksum errors. You can identify this problem like this. Log into two worker nodes via SSH. Identify a service that is e.g. running on `worker01` and try to access it on `worker02`. E.g. the `kube-dns` or `coredns` pod is a good candidate as it runs basically on every Kubernetes cluster. Desipe the fact that DNS queries normally send via UDP protocol DNS also works with TCP. So assume `kube-dns` is running on `worker01` and on `worker02` you try to connect to the DNS service via
+
+```
+telnet 10.32.0.254 53
+Trying 10.32.0.254...
+```
+
+But as you can see nothing happens. So let's run `tcpdump` on `worker01` e.g. `tcpdump -nnvvvS -i any src host <ip_of_worker02>`. Now we capture every traffic from `worker02` on `worker01`. Execute `telnet 10.32.0.254 53` again on `worker02` and you may see something line this:
+
+```
+22:17:18.500515 IP (tos 0x0, ttl 64, id 32604, offset 0, flags [none], proto UDP (17), length 110)
+    10.8.0.112.43977 > 10.8.0.111.8472: [udp sum ok] OTV, flags [I] (0x08), overlay 0, instance 1
+IP (tos 0x10, ttl 63, id 10853, offset 0, flags [DF], proto TCP (6), length 60)
+    10.200.94.0.40912 > 10.200.1.37.53: Flags [S], cksum 0x74e3 (incorrect -> 0x890f), seq 3891002740, win 43690, options [mss 65495,sackOK,TS val 2436992709 ecr 0,nop,wscale 7], length 0
+...
+```
+
+If you have a closer look in the last line you see in this example `cksum 0x74e3 (incorrect -> 0x890f)` and that's the problem. The `SYN` packet is dropped because the checksum is wrong. No if you disable checksum offloading for `flannel.1` interface on all hosts (again at least on Hetzner cloud) it works:
+
+```
+telnet 10.32.0.254 53
+Trying 10.32.0.254...
+Connected to 10.32.0.254.
+Escape character is '^]'.
+...
+```
+
+And if we now have a look at the `tcpdump` output again
+
+```
+22:34:26.605677 IP (tos 0x0, ttl 64, id 794, offset 0, flags [none], proto UDP (17), length 110)
+    10.8.0.112.59225 > 10.8.0.111.8472: [udp sum ok] OTV, flags [I] (0x08), overlay 0, instance 1
+IP (tos 0x10, ttl 63, id 16989, offset 0, flags [DF], proto TCP (6), length 60)
+    10.200.94.0.42152 > 10.200.1.37.53: Flags [S], cksum 0xd49b (correct), seq 1673757006, win 43690, options [mss 65495,sackOK,TS val 2438020768 ecr 0,nop,wscale 7], length 0
+...
+```
+
+you'll see in the last line the checksum is correct. You can inspect the state of protocol offload and other features of the Flannel interface with `ethtool -k flannel.1`.
 
 Dependencies
 ------------

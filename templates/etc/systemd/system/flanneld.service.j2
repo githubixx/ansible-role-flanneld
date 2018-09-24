@@ -20,8 +20,9 @@ Restart=always
 RestartSec={{flannel_systemd_restartsec}}
 LimitNOFILE={{flannel_systemd_limitnofile}}
 LimitNPROC={{flannel_systemd_limitnproc}}
-ExecStartPre=/bin/mkdir -p {{flannel_subnet_file_dir}}
 ExecStart={{flannel_bin_dir}}/flanneld \
+{% if flannel_systemd_execstartpre is defined %}ExecStartPre={{flannel_systemd_execstartpre}}{% endif %}
+{% if flannel_systemd_execstartpost is defined %}ExecStartPost={{flannel_systemd_execstartpost}}{% endif %}
 {%- for setting in flannel_settings|sort %}
   -{{setting}}={{flannel_settings[setting]}} {% if not loop.last %}\{% endif %}
 {%- endfor %}

@@ -3,9 +3,10 @@
 # communication should use the VPN interface the interface name is
 # normally "wg0", "tap0" or "peervpn0".
 k8s_interface: "tap0"
-# The directory to store the K8s certificates and other configuration
+# Directory where the K8s certificates and other configuration are stored
+# on the Kubernetes hosts.
 k8s_conf_dir: "/var/lib/kubernetes"
-# CNI network plugin settings
+# CNI network plugin directory
 k8s_cni_conf_dir: "/etc/cni/net.d"
 # The directory from where to copy the K8s certificates. By default this
 # will expand to user's LOCAL $HOME (the user that run's "ansible-playbook ..."
@@ -14,7 +15,6 @@ k8s_cni_conf_dir: "/etc/cni/net.d"
 # "/home/da_user/k8s/certs".
 k8s_ca_conf_directory: "{{ '~/k8s/certs' | expanduser }}"
 
-etcd_conf_dir: "/etc/etcd"
 etcd_bin_dir: "/usr/local/bin"
 etcd_client_port: 2379
 etcd_certificates:
@@ -27,7 +27,7 @@ flannel_version: "v0.10.0"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
-flannel_cni_name: "podnet"
+flannel_cni_interface: "cni0"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
@@ -36,6 +36,16 @@ flannel_cni_conf_file: "10-flannel"
 flannel_systemd_restartsec: "5"
 flannel_systemd_limitnofile: "40000"
 flannel_systemd_limitnproc: "1048576"
+# "ExecStartPre" directive in flannel's systemd service file. This command
+# is executed before flannel service starts.
+flannel_systemd_execstartpre: "/bin/mkdir -p {{flannel_subnet_file_dir}}"
+# "ExecStartPost" directive in flannel's systemd service file. This command
+# is execute after flannel service is started. If you run in Hetzner cloud
+# this may be important. In this case it changes the TX checksumming offload
+# parameter for the "flannel.1" interface. It seems that there is a 
+# (kernel/driver) checksum offload bug with flannel vxlan encapsulation 
+# (all inside UDP) inside WireGuard encapsulation.
+# flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"
 
 flannel_settings:
   "etcd-cafile": "{{k8s_conf_dir}}/ca-etcd.pem"
@@ -48,3 +58,23 @@ flannel_settings:
   "ip-masq": "true"
   "healthz-ip": "0.0.0.0"
   "healthz-port": "0" # 0 = disable
+
+flannel_cni_conf: |
+  {
+    "name": "{{flannel_cni_interface}}",
+    "plugins": [
+      {
+        "type": "flannel",
+        "delegate": {
+          "hairpinMode": true,
+          "isDefaultGateway": true
+        }
+      },
+      {
+        "type": "portmap",
+        "capabilities": {
+          "portMappings": true
+        }
+      }
+    ]
+  }
