@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+**v6.0.0_r0.10.0**
+
+- variable `flannel_cni_name` no longer needed
+- template `cni-flannel.conf.j2` no longer needed (see `flannel_cni_conf` variable)
+- new variables `flannel_systemd_execstartpre` and `flannel_systemd_execstartpost`
+- `etcd_conf_dir` variable no longer needed
+
 **v5.0.0_r0.10.0**
 
 - working on Ubuntu 18.04
