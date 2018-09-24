@@ -90,16 +90,6 @@
     - k8s-flannel
 
 - name: Install flanneld CNI config
-  template:
-    src: etc/cni/net.d/cni-flannel.conf.j2
-    dest: "{{k8s_cni_conf_dir}}/{{flannel_cni_conf_file}}.conf"
-    owner: root
-    group: root
-    mode: 0644
-  tags:
-    - k8s-flannel
-
-- name: Install flanneld CNI config
   copy:
     content: "{{flannel_cni_conf}}"
     dest: "{{k8s_cni_conf_dir}}/10-flannel.conflist"
