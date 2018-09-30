@@ -50,6 +50,7 @@ flannel_version: "v0.10.0"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
+flannel_cni_interface: "cni0"
 flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
@@ -64,8 +65,8 @@ flannel_systemd_execstartpre: "/bin/mkdir -p {{flannel_subnet_file_dir}}"
 # "ExecStartPost" directive in flannel's systemd service file. This command
 # is execute after flannel service is started. If you run in Hetzner cloud
 # this may be important. In this case it changes the TX checksumming offload
-# parameter for the "flannel.1" interface. It seems that there is a
-# (kernel/driver) checksum offload bug with flannel vxlan encapsulation
+# parameter for the "flannel.1" interface. It seems that there is a 
+# (kernel/driver) checksum offload bug with flannel vxlan encapsulation 
 # (all inside UDP) inside WireGuard encapsulation.
 # flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"
 
@@ -80,6 +81,26 @@ flannel_settings:
   "ip-masq": "true"
   "healthz-ip": "0.0.0.0"
   "healthz-port": "0" # 0 = disable
+
+flannel_cni_conf: |
+  {
+    "name": "{{flannel_cni_interface}}",
+    "plugins": [
+      {
+        "type": "flannel",
+        "delegate": {
+          "hairpinMode": true,
+          "isDefaultGateway": true
+        }
+      },
+      {
+        "type": "portmap",
+        "capabilities": {
+          "portMappings": true
+        }
+      }
+    ]
+  }
 ```
 
 The settings for Flannel daemon defined in `flannel_settings` can be overriden by defining a variable called `flannel_settings_user`. You can also add additional settings by using this variable. E.g. to override `healthz-ip` default value and add `kubeconfig-file` setting add the following settings to `group_vars/all.yml` or where ever it fit's best for you:

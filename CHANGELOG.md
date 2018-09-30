@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v6.0.2_r0.10.0**
+
+- update README
+
 **v6.0.1_r0.10.0**
 
 - fix order of commands in flanneld.service.j2 template
@@ -11,6 +15,7 @@ Changelog
 - template `cni-flannel.conf.j2` no longer needed (see `flannel_cni_conf` variable)
 - new variables `flannel_systemd_execstartpre` and `flannel_systemd_execstartpost`
 - `etcd_conf_dir` variable no longer needed
+- introduce `flannel_cni_interface` variable
 
 **v5.0.0_r0.10.0**
 
