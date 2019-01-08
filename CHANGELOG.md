@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+**7.0.0+0.10.0**
+
+- use correct semantic versioning as described in https://semver.org. Needed for Ansible Galaxy importer as it now insists on using semantic versioning.
+- make Ansible linter happy
+- no major changes but decided to start a new major release as versioning scheme changed quite heavily
+
 **v6.0.2_r0.10.0**
 
 - update README

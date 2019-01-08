@@ -6,7 +6,7 @@ This Ansible playbook is used in [Kubernetes the not so hard way with Ansible - 
 Versions
 --------
 
-I tag every release and try to stay with [semantic versioning](http://semver.org) (well kind of). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too. A tag `v4.0.0_r0.10.0` means this is version `4.0.0` of this role and it's meant to be used with Flannel version `0.10.0` (but maybe also works with higher versions). If the role itself changes `vX.Y.Z` will increase. If the Flannel version changes `rX.Y.Z` will increase. This allows to tag bugfixes and new major versions of the role while it's still developed for a specific Flannel release.
+I tag every release and try to stay with [semantic versioning](http://semver.org). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too. A tag `7.0.0+0.10.0` means this is version `7.0.0` of this role and it's meant to be used with Flannel version `0.10.0` (but maybe also works with newer versions). If the role itself changes `X.Y.Z` before `+` will increase. If the Flannel version changes `X.Y.Z` after `+` will increase. This allows to tag bugfixes and new major versions of the role while it's still developed for a specific Flannel release.
 
 Requirements
 ------------
@@ -16,7 +16,7 @@ This role must be rolled out before Docker is installed (see https://github.com/
 Changelog
 ---------
 
-see [CHANGELOG.md](CHANGELOG.md)
+see [CHANGELOG.md](https://github.com/githubixx/ansible-role-flanneld/blob/master/CHANGELOG.md)
 
 Role Variables
 --------------
@@ -128,7 +128,7 @@ IP (tos 0x10, ttl 63, id 10853, offset 0, flags [DF], proto TCP (6), length 60)
 ...
 ```
 
-If you have a closer look in the last line you see in this example `cksum 0x74e3 (incorrect -> 0x890f)` and that's the problem. The `SYN` packet is dropped because the checksum is wrong. No if you disable checksum offloading for `flannel.1` interface on all hosts (again at least on Hetzner cloud) it works:
+If you have a closer look in the last line you see in this example `cksum 0x74e3 (incorrect -> 0x890f)` and that's the problem. The `SYN` packet is dropped because the checksum is wrong. Now if you disable checksum offloading for `flannel.1` interface on all hosts (again at least on Hetzner cloud) it works:
 
 ```
 telnet 10.32.0.254 53

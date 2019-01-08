@@ -4,7 +4,7 @@
 
 - name: Create Kubernetes config directory
   file:
-    path: "{{k8s_conf_dir}}"
+    path: "{{ k8s_conf_dir }}"
     state: directory
     mode: 0700
     owner: root
@@ -14,55 +14,56 @@
 
 - name: Copy etcd certificates
   copy:
-    src: "{{k8s_ca_conf_directory}}/{{item}}"
-    dest: "{{k8s_conf_dir}}/{{item}}"
+    src: "{{ k8s_ca_conf_directory }}/{{ item }}"
+    dest: "{ {k8s_conf_dir }}/{{ item }}"
     mode: 0640
     owner: root
     group: root
   with_items:
-    - "{{etcd_certificates}}"
+    - "{{ etcd_certificates }}"
   tags:
     - k8s-flannel
 
 - name: Check if flannel network configuration in etcd is done
   shell: |
-    {{etcd_bin_dir}}/etcdctl \
-      --ca-file={{k8s_conf_dir}}/ca-etcd.pem \
-      --cert-file={{k8s_conf_dir}}/cert-etcd.pem \
-      --key-file={{k8s_conf_dir}}/cert-etcd-key.pem \
-      --endpoints="https://127.0.0.1:{{etcd_client_port}}" \
-      get {{flannel_etcd_prefix}}/config || true
+    {{ etcd_bin_dir }}/etcdctl \
+      --ca-file={{ k8s_conf_dir }}/ca-etcd.pem \
+      --cert-file={{ k8s_conf_dir }}/cert-etcd.pem \
+      --key-file={{ k8s_conf_dir }}/cert-etcd-key.pem \
+      --endpoints="https://127.0.0.1:{{ etcd_client_port }}" \
+      get {{ flannel_etcd_prefix }}/config || true
   register: flannel_configured
   run_once: true
-  delegate_to: "{{groups.k8s_etcd|first}}"
+  delegate_to: "{{ groups.k8s_etcd|first }}"
   tags:
     - k8s-flannel
 
 - name: Setup flannel network configuration in etcd if needed
   shell: |
-    {{etcd_bin_dir}}/etcdctl \
-      --ca-file={{k8s_conf_dir}}/ca-etcd.pem \
-      --cert-file={{k8s_conf_dir}}/cert-etcd.pem \
-      --key-file={{k8s_conf_dir}}/cert-etcd-key.pem \
-      --endpoints="https://127.0.0.1:{{etcd_client_port}}" \
-      set {{flannel_etcd_prefix}}/config '{"Network":"{{flannel_ip_range}}","Backend":{"Type": "{{flannel_backend_type}}"}}'
+    {{ etcd_bin_dir }}/etcdctl \
+      --ca-file={{ k8s_conf_dir }}/ca-etcd.pem \
+      --cert-file={{ k8s_conf_dir }}/cert-etcd.pem \
+      --key-file={{ k8s_conf_dir }}/cert-etcd-key.pem \
+      --endpoints="https://127.0.0.1:{{ etcd_client_port }}" \
+      set {{ flannel_etcd_prefix }}/config '{"Network":"{{ flannel_ip_range }}","Backend":{"Type": "{{ flannel_backend_type }}"}}'
   when: flannel_configured.stderr.find('Key not found') != -1
   run_once: true
-  delegate_to: "{{groups.k8s_etcd|first}}"
+  delegate_to: "{{ groups.k8s_etcd|first }}"
   tags:
+    - skip_ansible_lint
     - k8s-flannel
 
 - name: Downloading official flanneld binary
   get_url:
-    url: https://github.com/coreos/flannel/releases/download/{{flannel_version}}/flanneld-amd64
-    dest: "{{flannel_bin_dir}}/flanneld"
+    url: "https://github.com/coreos/flannel/releases/download/{{ flannel_version }}/flanneld-amd64"
+    dest: "{{ flannel_bin_dir }}/flanneld"
     mode: 0750
   tags:
     - k8s-flannel
 
 - name: Combine flannel_settings and flannel_settings_user (if defined)
   set_fact:
-    flannel_settings: "{{flannel_settings | combine(flannel_settings_user|default({})) }}"
+    flannel_settings: "{{ flannel_settings | combine(flannel_settings_user|default({})) }}"
   tags:
     - k8s-flannel
 
@@ -81,7 +82,7 @@
 
 - name: Ensure CNI config directory
   file:
-    path: "{{k8s_cni_conf_dir}}"
+    path: "{{ k8s_cni_conf_dir }}"
     state: directory
     mode: 0755
     owner: root
@@ -91,8 +92,8 @@
 
 - name: Install flanneld CNI config
   copy:
-    content: "{{flannel_cni_conf}}"
-    dest: "{{k8s_cni_conf_dir}}/10-flannel.conflist"
+    content: "{{ flannel_cni_conf }}"
+    dest: "{{ k8s_cni_conf_dir }}/10-flannel.conflist"
     mode: 0600
   tags:
     - k8s-flannel
