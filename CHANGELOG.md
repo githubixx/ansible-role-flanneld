@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**7.0.1+0.10.0**
+
+- Fixed a spacing issue: https://github.com/githubixx/ansible-role-flanneld/pull/8
+
 **7.0.0+0.10.0**
 
 - use correct semantic versioning as described in https://semver.org. Needed for Ansible Galaxy importer as it now insists on using semantic versioning.
