@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**7.0.2+0.10.0**
+
+- Fix for Kubernetes v1.16.x. Introducing `flannel_cni_spec_version` variable. Kubernetes v1.16 requires `cniVersion` specified in `10-flannel.conflist` which is the latest supported CNI specification.
+
 **7.0.1+0.10.0**
 
 - Fixed a spacing issue: https://github.com/githubixx/ansible-role-flanneld/pull/8
