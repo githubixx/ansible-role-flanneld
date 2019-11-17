@@ -55,6 +55,7 @@ flannel_subnet_file_dir: "/run/flannel"
 flannel_options_dir: "/etc/flannel"
 flannel_bin_dir: "/usr/local/sbin"
 flannel_cni_conf_file: "10-flannel"
+flannel_cni_spec_version: "0.3.1"
 
 flannel_systemd_restartsec: "5"
 flannel_systemd_limitnofile: "40000"
@@ -85,6 +86,7 @@ flannel_settings:
 flannel_cni_conf: |
   {
     "name": "{{flannel_cni_interface}}",
+    "cniVersion": "{{flannel_cni_spec_version}}",
     "plugins": [
       {
         "type": "flannel",
