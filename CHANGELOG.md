@@ -1,6 +1,26 @@
 Changelog
 ---------
 
+**no version update**
+
+- needed to fix (rename) tag names to adhere sematic versioning scheme (SemVer). The following tags are affected:
+
+```
+v1.0.0_r0.7.1   -> 1.0.0+0.7.1
+v1.0.1_r0.7.1   -> 1.0.1+0.7.1
+v2.0.0_r0.9.0   -> 2.0.0+0.9.0
+v2.0.1_r0.9.1   -> 2.0.1+0.9.1
+v2.0.2_r0.9.1   -> 2.0.2+0.9.1
+v3.0.0_r0.9.1   -> 3.0.0+0.9.1 
+v4.0.0_r0.10.0  -> 4.0.0+0.10.0
+v5.0.0_r0.10.0  -> 5.0.0+0.10.0
+v6.0.0_r0.10.0  -> 6.0.0+0.10.0
+v6.0.1_r0.10.0  -> 6.0.1+0.10.0
+v6.0.2_r0.10.0  -> 6.0.2+0.10.0
+```
+
+`7.0.2+0.10.0` and `7.0.1+0.10.0` are not affected.
+
 **7.0.2+0.10.0**
 
 - Fix for Kubernetes v1.16.x. Introducing `flannel_cni_spec_version` variable. Kubernetes v1.16 requires `cniVersion` specified in `10-flannel.conflist` which is the latest supported CNI specification.
