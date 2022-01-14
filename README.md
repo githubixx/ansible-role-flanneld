@@ -1,17 +1,18 @@
 ansible-role-flanneld
 =====================
 
-This Ansible playbook is used in [Kubernetes the not so hard way with Ansible - Worker](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-worker/). It installes flanneld which provides functionality for the Kubernetes pod network (makes it possible for pods on different hosts to communicate).
+This Ansible playbook is used in [Kubernetes the not so hard way with Ansible - Worker](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-worker/). It installes and configures `flanneld` binary. [Flannel](https://github.com/flannel-io/flannel) is responsible for providing a layer 3 IPv4 network between multiple nodes in a cluster. Flannel does not control how containers are networked to the host, only how the traffic is transported between hosts. However, flannel does provide a CNI plugin for Kubernetes and a guidance on integrating with Docker.
 
 Versions
 --------
 
-I tag every release and try to stay with [semantic versioning](http://semver.org). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too. A tag `7.0.0+0.10.0` means this is version `7.0.0` of this role and it's meant to be used with Flannel version `0.10.0` (but maybe also works with newer versions). If the role itself changes `X.Y.Z` before `+` will increase. If the Flannel version changes `X.Y.Z` after `+` will increase. This allows to tag bugfixes and new major versions of the role while it's still developed for a specific Flannel release.
+I tag every release and try to stay with [semantic versioning](http://semver.org). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too. A tag `8.0.0+0.16.1` means this is version `8.0.0` of this role and it's meant to be used with Flannel version `0.16.1` (but maybe also works with newer versions). If the role itself changes `X.Y.Z` before `+` will increase. If the Flannel version changes `X.Y.Z` after `+` will increase. This allows to tag bugfixes and new major versions of the role while it's still developed for a specific Flannel release.
 
 Requirements
 ------------
 
-This role must be rolled out before Docker is installed (see https://github.com/githubixx/ansible-role-docker). Additionally etcd (see https://github.com/githubixx/ansible-role-etcd) must be running (but without that you won't have any part of Kubernetes running anyways ;-) ). During run the playbook will connect to the first node it finds in the `k8s_etcd` group and executes `etcdclt` there to add a new entry into etcd. That entry contains the flannel network config and it is located at "`flannel_etcd_prefix`/config".
+- An `etcd` cluster must be up and running (see [ansible-role-etcd](https://github.com/githubixx/ansible-role-etcd)). The role will connect to the first node it finds in Ansible's `k8s_etcd` group and executes `etcdctl` there to add a new entry into `etcd`. That entry contains the flannel network config and it is located at "`flannel_etcd_prefix`/config".
+- [CNI plugins](https://github.com/containernetworking/plugins) (see [ansible-role-cni](https://github.com/githubixx/ansible-role-cni))
 
 Changelog
 ---------
@@ -46,7 +47,7 @@ etcd_certificates:
   - cert-etcd.pem
   - cert-etcd-key.pem
 
-flannel_version: "v0.10.0"
+flannel_version: "v0.16.1"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
@@ -155,15 +156,16 @@ you'll see in the last line the checksum is correct. You can inspect the state o
 Dependencies
 ------------
 
-https://galaxy.ansible.com/githubixx/etcd/ installed.
+- `etcd` (see [ansible-role-etcd](https://galaxy.ansible.com/githubixx/etcd/))
+- `CNI plugins` (see [ansible-role-cni](https://galaxy.ansible.com/githubixx/cni) or any other role that installs [CNI plugins](https://github.com/containernetworking/plugins))
 
 Example Playbook
 ----------------
 
 ```
-- hosts: k8s:children
+- hosts: flannel
   roles:
-    - githubixx.kubernetes-flanneld
+    - githubixx.flanneld
 ```
 
 License

@@ -23,7 +23,7 @@ etcd_certificates:
   - cert-etcd.pem
   - cert-etcd-key.pem
 
-flannel_version: "v0.10.0"
+flannel_version: "v0.16.1"
 flannel_etcd_prefix: "/kubernetes-cluster/network"
 flannel_ip_range: "10.200.0.0/16"
 flannel_backend_type: "vxlan"
@@ -43,8 +43,8 @@ flannel_systemd_execstartpre: "/bin/mkdir -p {{flannel_subnet_file_dir}}"
 # "ExecStartPost" directive in flannel's systemd service file. This command
 # is execute after flannel service is started. If you run in Hetzner cloud
 # this may be important. In this case it changes the TX checksumming offload
-# parameter for the "flannel.1" interface. It seems that there is a 
-# (kernel/driver) checksum offload bug with flannel vxlan encapsulation 
+# parameter for the "flannel.1" interface. It seems that there is a
+# (kernel/driver) checksum offload bug with flannel vxlan encapsulation
 # (all inside UDP) inside WireGuard encapsulation.
 # flannel_systemd_execstartpost: "/sbin/ethtool -K flannel.1 tx off"
 
@@ -58,7 +58,7 @@ flannel_settings:
   "subnet-file": "{{flannel_subnet_file_dir}}/subnet.env"
   "ip-masq": "true"
   "healthz-ip": "0.0.0.0"
-  "healthz-port": "0" # 0 = disable
+  "healthz-port": "0"  # 0 = disable
 
 flannel_cni_conf: |
   {

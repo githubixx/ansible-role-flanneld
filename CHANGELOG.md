@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+**8.0.0+0.16.1
+
+- update to flannel v0.16.1
+- remove unneeded directories
+- make ansible-lint happy
+- remove Ubuntu 16.04 support
+- add role_name/namespace to meta/main.yml
+
 **no version update**
 
 - needed to fix (rename) tag names to adhere sematic versioning scheme (SemVer). The following tags are affected:
