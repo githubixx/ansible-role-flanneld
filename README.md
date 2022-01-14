@@ -12,7 +12,7 @@ Requirements
 ------------
 
 - An `etcd` cluster must be up and running (see [ansible-role-etcd](https://github.com/githubixx/ansible-role-etcd)). The role will connect to the first node it finds in Ansible's `k8s_etcd` group and executes `etcdctl` there to add a new entry into `etcd`. That entry contains the flannel network config and it is located at "`flannel_etcd_prefix`/config".
-- `CNI plugins` (see [ansible-role-cni](https://github.com/githubixx/ansible-role-cni))
+- [CNI plugins](https://github.com/containernetworking/plugins) (see [ansible-role-cni](https://github.com/githubixx/ansible-role-cni))
 
 Changelog
 ---------
@@ -157,7 +157,7 @@ Dependencies
 ------------
 
 - `etcd` (see [ansible-role-etcd](https://galaxy.ansible.com/githubixx/etcd/))
-- `CNI plugins` (see [ansible-role-cni](https://github.com/githubixx/ansible-role-cni))
+- `CNI plugins` (see [ansible-role-cni](https://galaxy.ansible.com/githubixx/cni) or any other role that installs [CNI plugins](https://github.com/containernetworking/plugins))
 
 Example Playbook
 ----------------
