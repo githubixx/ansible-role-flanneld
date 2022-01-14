@@ -1,8 +1,10 @@
 galaxy_info:
   author: Robert Wimmer
-  description: Installs flanneld (for Kubernetes)
+  description: Installs and configures flanneld binary (for Kubernetes)
   license: GPLv3
   min_ansible_version: 2.2
+  role_name: flanneld
+  namespace: githubixx
   platforms:
   - name: Ubuntu
     versions:
