@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-**8.0.0+0.16.1
+**8.0.0+0.16.1**
 
 - update to flannel v0.16.1
 - remove unneeded directories
