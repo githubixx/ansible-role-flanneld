@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**8.0.0+0.16.1
+
+- update to flannel v0.16.1
+
 **no version update**
 
 - needed to fix (rename) tag names to adhere sematic versioning scheme (SemVer). The following tags are affected:
